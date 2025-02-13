@@ -55,7 +55,7 @@ variables = {
 "ssh_banner"                    : get_ssh_banner(),
 "ssh_pipename"                  : get_pipename(),
 # Staging
-"host_stage"                    : "true", # Staging on or off
+"host_stage"                    : "false", # Staging on or off
 # Staging - Server Settings
 "http_stager_uri_x86"           : get_random_uri(),
 "http_stager_uri_x64"           : get_random_uri(),
