@@ -33,13 +33,22 @@ set useragent "{{ useragent }}";
 ## SSL CERTIFICATE
 ################################################
 https-certificate { # Simple self signed certificate data
-    
+
     set C   "{{ https_certificate_C }}";
     set CN  "{{ https_certificate_CN }}";
     set O   "{{ https_certificate_O }}";
     set OU  "{{ https_certificate_OU }}";
     set validity "{{ https_certificate_V }}";
 }
+
+###############################################
+## Alternative SSL CERTIFICATE                
+###############################################
+## https-certificate { # using keystores
+##
+##     set keystore "nickvourd.store";
+##     set password "password";
+## }
 
 ################################################
 ## Task and Proxy Max Size
@@ -226,7 +235,7 @@ process-inject { # Reference: https://www.cobaltstrike.com/help-malleable-postex
 ################################################
 http-config { # The http-config block has influence over all HTTP responses served by Cobalt Strike’s web server. 
     set headers "{{ http_config_headers }}";
-    header "Server" "{{ http_config_header_server }}";
+    # header "Server" "{{ http_config_header_server }}";
     header "Keep-Alive" "timeout=10, max=100";
     header "Connection" "Keep-Alive";
     # Use this option if your teamserver is behind a redirector
@@ -247,9 +256,9 @@ http-get { # Don't think of this in terms of HTTP POST, but as a beacon transact
 
     client {
 
-        header {{ http_get_client_header1 }};
-        header {{ http_get_client_header2 }};
-        header {{ http_get_client_header3 }};
+        # header {{ http_get_client_header1 }};
+        # header {{ http_get_client_header2 }};
+        # header {{ http_get_client_header3 }};
 
         metadata {
             mask; # Transform type
@@ -287,9 +296,9 @@ http-post { # Don't think of this in terms of HTTP POST, but as a beacon transac
 
     client {
 
-        header {{ http_post_client_header1 }};
-        header {{ http_post_client_header2 }};
-        header {{ http_post_client_header3 }};
+        # header {{ http_post_client_header1 }};
+        # header {{ http_post_client_header2 }};
+        # header {{ http_post_client_header3 }};
        
         id {
             mask; # Transform type
