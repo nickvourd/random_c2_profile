@@ -164,7 +164,7 @@ stage { # https://www.cobaltstrike.com/help-malleable-postex
     set obfuscate      "{{ stage_obfuscate }}"; # review sleepmask and UDRL considerations for obfuscate
     set cleanup        "{{ stage_cleanup }}";
     set sleep_mask     "{{ stage_sleep_mask}}";
-    set smartinject    "{{ stage_smartinject }}";
+    set smartinject    "false";
     set checksum       "{{ stage_checksum }}";
     set compile_time   "{{ stage_compile_time }}";
     set entry_point    "{{ stage_entry_point }}";
@@ -172,6 +172,7 @@ stage { # https://www.cobaltstrike.com/help-malleable-postex
     set image_size_x64 "{{ stage_image_size_x64 }}";
     set name           "{{ stage_name }}";
     set rich_header    "{{ stage_rich_header }}";
+    set eaf_bypass     "true";
 
     ## WARNING: Module stomping 
     # set module_x86 "{{ stage_module_x86 }}"; # Ask the x86 ReflectiveLoader to load the specified library and overwrite its space instead of allocating memory with VirtualAlloc.
