@@ -157,6 +157,7 @@ post-ex { # Reference: https://www.cobaltstrike.com/help-malleable-postex
 stage { # https://www.cobaltstrike.com/help-malleable-postex
     # allocator and RWX settings (Note: HealAlloc uses RXW)
     {{ allocator_settings }} 
+    set rdll_use_syscalls  "false";
     set magic_mz_x86   "{{ stage_magic_mz_x86 }}";
     set magic_mz_x64   "{{ stage_magic_mz_x64 }}";
     set magic_pe       "{{ stage_magic_pe }}";
