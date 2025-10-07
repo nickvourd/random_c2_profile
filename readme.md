@@ -31,6 +31,7 @@ This has been designed and tested with python3
 - 2nd, setup pipenv environment
 
 ```
+pipenv install --python 3.12
 pipenv --python 3.12
 pipenv install
 pipenv shell
