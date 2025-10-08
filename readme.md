@@ -31,8 +31,8 @@ This has been designed and tested with python3
 - 2nd, setup pipenv environment
 
 ```
-pipenv install --python 3.10
-pipenv --python 3.10
+pipenv install --python 3.12
+pipenv --python 3.12
 pipenv install
 pipenv shell
 python random_c2profile.py
