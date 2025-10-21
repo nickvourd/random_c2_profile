@@ -174,6 +174,7 @@ stage { # https://www.cobaltstrike.com/help-malleable-postex
     set name           "{{ stage_name }}";
     set rich_header    "{{ stage_rich_header }}";
     set eaf_bypass     "true";
+    set copy_pe_header "false";
 
     ## WARNING: Module stomping 
     # set module_x86 "{{ stage_module_x86 }}"; # Ask the x86 ReflectiveLoader to load the specified library and overwrite its space instead of allocating memory with VirtualAlloc.
