@@ -4,6 +4,8 @@ Cobalt Strike random C2 Profile generator
 
 Author: Joe Vest (@joevest)
 
+Contributor: Nikos Vourdas (@nickvourd)
+
 ## Overview
 
 This project is meant to quickly generate a random c2 profile. It is basically a Jinja template with random variables. The idea is to focus on randomization vs a cohesive set of values that support a specific threat actor.
