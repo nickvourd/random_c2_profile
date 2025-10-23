@@ -143,8 +143,8 @@ post-ex { # Reference: https://www.cobaltstrike.com/help-malleable-postex
     set spawnto_x86 "{{ post_ex_spawnto_x86 }}";
     set spawnto_x64 "{{ post_ex_spawnto_x64 }}";
     set obfuscate "{{ post_ex_obfuscate }}";
-    set smartinject "{{ post_ex_smartinject }}";
-    set amsi_disable "{{ post_ex_amsi_disable }}";
+    set smartinject "false";
+    set amsi_disable "false";
     set pipename "{{ post_ex_pipename }}";
     set keylogger "{{ post_ex_keylogger }}"; # options are GetAsyncKeyState or SetWindowsHookEx
     #set thread_hint ""; # specify as module!function+0x##
