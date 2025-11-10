@@ -18,7 +18,6 @@ The default template may not meet your OPSEC needs. Profiles should always be tw
 
 ### OPSEC WARNING: Highlights of the default profile you should be aware of before using
 
-- Staging is enabled by default. You should disable this.
 - The default does not support profile variants (see Profile Variants - https://www.cobaltstrike.com/help-malleable-c2)
 - URIs and DNS hosts are not fancy, they are built using a random words from a word list.
 - The process injection setting may not fit your OPSEC needs
