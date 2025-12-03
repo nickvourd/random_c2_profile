@@ -6,7 +6,7 @@ from core.functions import *
 
 variables = {
 # Cobalt Strike Version
-"version"                       : "4.7",
+"version"                       : "4.12",
 # Created
 "timestamp"                     : get_date(),
 # Timing
@@ -76,6 +76,7 @@ variables = {
 "post_ex_spawnto_x64"           : get_post_ex_spawnto_x64(),
 "post_ex_obfuscate"             : "true",
 "post_ex_smartinject"           : "true",
+"post_ex_cleanup"               : "true",   
 "post_ex_amsi_disable"          : "true",
 "post_ex_pipename"              : get_post_ex_pipename_list(),
 "post_ex_keylogger"             : "GetAsyncKeyState", # options are GetAsyncKeyState (default) or SetWindowsHookEx
@@ -88,7 +89,12 @@ variables = {
 "stage_stomppe"                 : "true",
 "stage_obfuscate"               : "true",
 "stage_cleanup"                 : "true",
+"stage_data_store_size"         : get_stage_data_store_size(),
 "stage_sleep_mask"              : "true",
+"stage_syscall_method"          : get_stage_syscall_method(),
+"stage_beacon_gate"             : get_stage_beacon_gate(),
+"stage_eaf_bypass"              : get_stage_eaf_bypass(),
+"stage_transform_obfuscate"     : get_stage_transform_obfuscate(),
 "stage_smartinject"             : "true",
 "stage_checksum"                : "0",
 "stage_compile_time"            : get_stage_compile_time(),
@@ -106,6 +112,8 @@ variables = {
 # Process Injection
 "process_inject_allocator"      : get_process_inject_allocator(),
 "process_inject_min_alloc"      : get_process_inject_min_alloc(),
+"process_inject_use_driploading": get_process_inject_use_driploading(),
+"process_inject_dripload_delay" : get_process_inject_dripload_delay(),
 "process_inject_startrwx"       : "false",
 "process_inject_userwx"         : "false",
 "process_inject_bof_reuse_memory"      : "true", # added in 4.7
