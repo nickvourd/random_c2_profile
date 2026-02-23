@@ -292,18 +292,168 @@ def get_stage_allocator():
     options = ["VirtualAlloc","HeapAlloc","MapViewOfFile"]
     allocator = random.choice(options)
     rwx = "false"
-    if (allocator == "HeapAlloc"):
+    if allocator == "HeapAlloc":
         rwx = "true"
-    allocator_settings = '''
-    set allocator      "{0}";
-    set userwx         "{1}";
-    '''.format(allocator,rwx)
+    # rdll_use_syscalls is only valid when rdll_loader is PrependLoader and the
+    # allocator is VirtualAlloc or MapViewOfFile. Our template always sets
+    # rdll_loader to PrependLoader, so we condition this solely on the allocator.
+    rdll_use_syscalls = "true" if allocator in ["VirtualAlloc", "MapViewOfFile"] else "false"
+    lines = [
+        f'    set allocator         "{allocator}";',
+        f'    set userwx            "{rwx}";',
+        f'    set rdll_use_syscalls "{rdll_use_syscalls}";',
+    ]
+
+    # Drip-loading is only honored when allocator is VirtualAlloc
+    if allocator == "VirtualAlloc":
+        if random.choice([True, False]):
+            delay = random.randint(50, 250)
+            lines.append('    set rdll_use_driploading "true";')
+            lines.append(f'    set rdll_dripload_delay "{delay}";')
+
+    allocator_settings = "\n".join(lines)
     return allocator_settings
 
 def get_stage_magic_pe():
     # Override the PE character marker used by Beacon's Reflective Loader with another value.
     return get_random_string(2)
-    
+
+def get_stage_data_store_size():
+    # Beacon Data Store enables an operator to store Beacon Object Files (BOFs) and .NET assemblies in Beacon's memory.
+    return str(random.choice(range(16, 65, 16)))
+
+def get_stage_syscall_method():
+    # System call method to be used at execution time. Options are: None, Direct, or Indirect.
+    return random.choice(["None", "Direct", "Indirect"])
+
+
+def get_stage_beacon_gate():
+    # Configure BeaconGate APIs that will be proxied via the Sleepmask.
+    # When this returns an empty string, no beacon_gate block will be emitted.
+    #
+    # References:
+    # https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/beacon-gate.htm
+    #
+    # Supported groups:
+    # - Comms   : InternetOpenA, InternetConnectA (HTTP(S) WinInet Beacon only)
+    # - Core    : Core Beacon API set (VirtualAlloc, OpenProcess, WriteProcessMemory, etc.)
+    # - Cleanup : ExitThread (when Exit Function is set to Thread and module_x* is not used)
+    # - All     : Comms + Core + Cleanup
+    #
+    # It is also possible to proxy specific functions from the supported set, which is what
+    # this helper does when the "custom" mode is selected.
+
+    strategies = ["none", "comms", "core", "cleanup", "all", "custom"]
+    choice = random.choice(strategies)
+
+    # All supported APIs that may be forwarded via BeaconGate
+    comms_apis = ["InternetOpenA", "InternetConnectA"]
+    core_apis = [
+        "CloseHandle",
+        "CreateFileMappingA",
+        "CreateRemoteThread",
+        "CreateThread",
+        "DuplicateHandle",
+        "GetThreadContext",
+        "MapViewOfFile",
+        "OpenProcess",
+        "OpenThread",
+        "ReadProcessMemory",
+        "ResumeThread",
+        "SetThreadContext",
+        "UnMapViewOfFile",
+        "VirtualAlloc",
+        "VirtualAllocEx",
+        "VirtualFree",
+        "VirtualProtect",
+        "VirtualProtectEx",
+        "VirtualQuery",
+        "WriteProcessMemory",
+    ]
+    cleanup_apis = ["ExitThread"]
+
+    # "none" means do not emit a beacon_gate block at all
+    if choice == "none":
+        return ""
+
+    apis = []
+
+    if choice in ("comms", "all"):
+        apis.extend(comms_apis)
+
+    if choice in ("core", "all"):
+        apis.extend(core_apis)
+
+    if choice in ("cleanup", "all"):
+        apis.extend(cleanup_apis)
+
+    if choice == "custom":
+        all_apis = list(set(comms_apis + core_apis + cleanup_apis))
+        count = random.randint(2, min(6, len(all_apis)))
+        apis = random.sample(all_apis, count)
+
+    # De-duplicate while preserving order
+    seen = set()
+    unique_apis = []
+    for api in apis:
+        if api not in seen:
+            seen.add(api)
+            unique_apis.append(api)
+
+    if not unique_apis:
+        return ""
+
+    lines = ["beacon_gate {"]
+    for api in unique_apis:
+        lines.append(f"      {api};")
+    lines.append("    }")
+
+    return "\n".join(lines)
+
+
+def get_stage_eaf_bypass():
+    # EAF bypass is only enabled and meaningful when rdll_loader is PrependLoader.
+    # Our template always uses PrependLoader, so here we simply randomize whether
+    # to enable the bypass.
+    return random.choice(["true", "false"])
+
+
+def get_stage_transform_obfuscate():
+    # Build a transform-obfuscate block to perform additional transformations on
+    # Beacon's DLL payload. This is only supported when rdll_loader is set to
+    # PrependLoader, which our template enforces.
+    #
+    # Supported transformations:
+    #   - base64  : optional key length (8-2048)
+    #   - lznt1   : optional key length (8-2048)
+    #   - rc4     : required key length (8-128, must not exceed 128)
+    #   - xor     : required key length (8-2048)
+    #
+    # Transformations are applied in the order specified here; PrependLoader will
+    # process them in reverse to recover the original DLL payload.
+
+    transforms = ["lznt1", "rc4", "xor"]
+
+    def render_transform(name: str) -> str:
+        if name == "rc4":
+            # RC4 key length is limited to 128 characters
+            key_len = random.randint(8, 128)
+            return f'        rc4 "{key_len}";'
+        elif name == "xor":
+            key_len = random.randint(8, 64)
+            return f'        xor "{key_len}";'
+        elif name == "lznt1":
+            return "        lznt1;"
+        else:
+            return ""
+    random.shuffle(transforms)
+    lines = ["transform-obfuscate {"]
+    for t in transforms:
+        lines.append(render_transform(t))
+    lines.append("    }")
+
+    return "\n".join(lines)
+
 def get_stage_magic_mz_86():
 # References:
 # https://www.redteam.cafe/red-team/shellcode-injection/magic_mz_x86-and-magic_mz_x64
@@ -412,6 +562,19 @@ def get_process_inject_min_alloc():
     low = 4096
     high = 20480
     return str(random.randint(low,high))
+
+
+def get_process_inject_use_driploading():
+    # Control whether process injection uses drip-loading (small chunks with
+    # delays between operations) to reduce large allocation heuristics.
+    choices = ["true", "false"]
+    return random.choice(choices)
+
+
+def get_process_inject_dripload_delay():
+    # Delay (in milliseconds) between drip-loading steps for process injection.
+    # Keep within a few hundred milliseconds to avoid excessive startup delay.
+    return str(random.randint(50, 250))
 
 def get_process_inject_execute():
     # execute block controls the methods Beacon will use when it needs to inject code into a process. 

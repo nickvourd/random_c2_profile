@@ -4,7 +4,7 @@ Cobalt Strike random C2 Profile generator
 
 Author: Joe Vest (@joevest)
 
-Contributor: Nikos Vourdas (@nickvourd)
+Contributors: Nikos Vourdas (@nickvourd), @dejisec
 
 ## Overview
 
@@ -65,7 +65,7 @@ Joe Vest (@joevest) - 2021
 ===================================================================
 
 [*] Generating Cobalt Strike Malleable C2 Profile
-    Version : 4.7
+    Version : 4.12
     template: templates/default_c2profile_template.jinja
 [*] Done. Don't forget to validate with c2lint. 
 [*] Profile saved to output/UBVOTUIW.profile
@@ -86,7 +86,7 @@ Joe Vest (@joevest) - 2021
 ===================================================================
 
 [*] Generating Cobalt Strike Malleable C2 Profile
-    Version : 4.7
+    Version : 4.12
     template: templates/my_template.jinja
 [*] Done. Don't forget to validate with c2lint. 
 [*] Profile saved to output/NSJOTVMN.profile

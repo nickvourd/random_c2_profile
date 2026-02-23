@@ -34,10 +34,10 @@ set useragent "{{ useragent }}";
 ################################################
 https-certificate { # Simple self signed certificate data
 
-    set C   "{{ https_certificate_C }}";
-    set CN  "{{ https_certificate_CN }}";
-    set O   "{{ https_certificate_O }}";
-    set OU  "{{ https_certificate_OU }}";
+    set C        "{{ https_certificate_C }}";
+    set CN       "{{ https_certificate_CN }}";
+    set O        "{{ https_certificate_O }}";
+    set OU       "{{ https_certificate_OU }}";
     set validity "{{ https_certificate_V }}";
 }
 
@@ -52,8 +52,8 @@ https-certificate { # Simple self signed certificate data
 ################################################
 ## Task and Proxy Max Size
 ################################################
-set tasks_max_size "2097152";
-set tasks_proxy_max_size "2097151";
+set tasks_max_size           "2097152";
+set tasks_proxy_max_size     "2097151";
 set tasks_dns_proxy_max_size "{{ tasks_dns_proxy_max_size }}";  
 
 ################################################
@@ -67,7 +67,7 @@ set steal_token_access_mask "{{ steal_token_access_mask }}";
 ################################################
 ## TCP Beacon
 ################################################
-set tcp_port "{{ tcp_port }}"; # TCP beacion listen port
+set tcp_port         "{{ tcp_port }}"; # TCP beacion listen port
 set tcp_frame_header "{{ tcp_frame_header }}"; # Prepend header to TCP Beacon messages
 
 ################################################
@@ -140,13 +140,14 @@ http-stager { # Reference: https://www.cobaltstrike.com/help-malleable-c2
 ## Post Exploitation
 ################################################
 post-ex { # Reference: https://www.cobaltstrike.com/help-malleable-postex
-    set spawnto_x86 "{{ post_ex_spawnto_x86 }}";
-    set spawnto_x64 "{{ post_ex_spawnto_x64 }}";
-    set obfuscate "{{ post_ex_obfuscate }}";
-    set smartinject "false";
+    set spawnto_x86  "{{ post_ex_spawnto_x86 }}";
+    set spawnto_x64  "{{ post_ex_spawnto_x64 }}";
+    set obfuscate    "{{ post_ex_obfuscate }}";
+    set smartinject  "false";
+    set cleanup      "true";
     set amsi_disable "false";
-    set pipename "{{ post_ex_pipename }}";
-    set keylogger "{{ post_ex_keylogger }}"; # options are GetAsyncKeyState or SetWindowsHookEx
+    set pipename     "{{ post_ex_pipename }}";
+    set keylogger    "{{ post_ex_keylogger }}"; # options are GetAsyncKeyState or SetWindowsHookEx
     #set thread_hint ""; # specify as module!function+0x##
 }
 
@@ -156,31 +157,40 @@ post-ex { # Reference: https://www.cobaltstrike.com/help-malleable-postex
 ################################################
 stage { # https://www.cobaltstrike.com/help-malleable-postex
     # allocator and RWX settings (Note: HealAlloc uses RXW)
-    {{ allocator_settings }} 
-    set rdll_use_syscalls  "false";
-    set magic_mz_x86   "{{ stage_magic_mz_x86 }}";
-    set magic_mz_x64   "{{ stage_magic_mz_x64 }}";
-    set magic_pe       "{{ stage_magic_pe }}";
-    set stomppe        "{{ stage_stomppe }}";
-    set obfuscate      "{{ stage_obfuscate }}"; # review sleepmask and UDRL considerations for obfuscate
-    set cleanup        "{{ stage_cleanup }}";
-    set sleep_mask     "{{ stage_sleep_mask}}";
-    set smartinject    "false";
-    set checksum       "{{ stage_checksum }}";
-    set compile_time   "{{ stage_compile_time }}";
-    set entry_point    "{{ stage_entry_point }}";
-    set image_size_x86 "{{ stage_image_size_x86 }}";
-    set image_size_x64 "{{ stage_image_size_x64 }}";
-    set name           "{{ stage_name }}";
-    set rich_header    "{{ stage_rich_header }}";
-    set eaf_bypass     "true";
-    set copy_pe_header "false";
+    {{ allocator_settings }}
+    set rdll_loader       "PrependLoader"; # PrependLoader only as StompLoader is no longer supported. 
+    set magic_mz_x86      "{{ stage_magic_mz_x86 }}";
+    set magic_mz_x64      "{{ stage_magic_mz_x64 }}";
+    set magic_pe          "{{ stage_magic_pe }}";
+    set stomppe           "{{ stage_stomppe }}";
+    set obfuscate         "{{ stage_obfuscate }}"; # review sleepmask and UDRL considerations for obfuscate
+    set cleanup           "{{ stage_cleanup }}";
+    set data_store_size   "{{ stage_data_store_size }}";
+    set sleep_mask        "{{ stage_sleep_mask }}";
+    set syscall_method    "{{ stage_syscall_method }}";
+    # beacon_gate determines which WinAPIs Beacon will proxy via the Sleepmask.
+    {{ stage_beacon_gate }}
+    set smartinject       "false";
+    set checksum          "{{ stage_checksum }}";
+    set compile_time      "{{ stage_compile_time }}";
+    set entry_point       "{{ stage_entry_point }}";
+    set image_size_x86    "{{ stage_image_size_x86 }}";
+    set image_size_x64    "{{ stage_image_size_x64 }}";
+    set name              "{{ stage_name }}";
+    set rich_header       "{{ stage_rich_header }}";
+    # EAF Bypass is only enabled for PrependLoader and is most relevant when
+    # certain security products enforce Export Address Table (EAT) checks.
+    set eaf_bypass        "{{ stage_eaf_bypass }}";
+    set copy_pe_header    "false";
 
     ## WARNING: Module stomping 
     # set module_x86 "{{ stage_module_x86 }}"; # Ask the x86 ReflectiveLoader to load the specified library and overwrite its space instead of allocating memory with VirtualAlloc.
     # set module_x64 "{{ stage_module_x64 }}"; # Same as module_x86; affects x64 loader
 
     # The transform-x86 and transform-x64 blocks pad and transform Beacon's Reflective DLL stage. These blocks support three commands: prepend, append, and strrep.
+    # The transform-obfuscate block (when present) performs additional
+    # transformations (base64, lznt1, rc4, xor) on the Beacon DLL payload.
+    {{ stage_transform_obfuscate }}
     transform-x86 { # blocks pad and transform Beacon's Reflective DLL stage. These blocks support three commands: prepend, append, and strrep.
         prepend "{{ stage_transform_x86_prepend }}"; # prepend nops
         strrep "ReflectiveLoader" "{{ stage_transform_x86_strrep1 }}";
@@ -204,15 +214,20 @@ process-inject { # Reference: https://www.cobaltstrike.com/help-malleable-postex
     # 4.7 BOF settings
     # set how memory is allocated in the current process for BOF content
     # https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2-extend_process-injection.htm?Highlight=bof_allocator
-    set bof_allocator "{{ process_inject_bof_allocator }}";
+    set bof_allocator    "{{ process_inject_bof_allocator }}";
     set bof_reuse_memory "{{ process_inject_bof_reuse_memory }}";
 
-    set allocator "{{ process_inject_allocator }}"; # Options: VirtualAllocEx, NtMapViewOfSection 
-    set min_alloc "{{ process_inject_min_alloc }}"; # 	Minimum amount of memory to request for injected content
-    set startrwx "false"; # Use RWX as initial permissions for injected content. Alternative is RW.
+    set allocator        "{{ process_inject_allocator }}"; # Options: VirtualAllocEx, NtMapViewOfSection 
+    set min_alloc        "{{ process_inject_min_alloc }}"; # 	Minimum amount of memory to request for injected content
+    # Drip-loading for process injection (added in 4.12); only valid when allocator is VirtualAllocEx.
+    {% if process_inject_allocator == 'VirtualAllocEx' %}
+    set use_driploading  "{{ process_inject_use_driploading }}";
+    set dripload_delay   "{{ process_inject_dripload_delay }}";
+    {% endif %}
+    set startrwx         "false"; # Use RWX as initial permissions for injected content. Alternative is RW.
     
     # review sleepmask and UDRL considerations for userwx
-    set userwx   "false"; # Use RWX as final permissions for injected content. Alternative is RX.
+    set userwx           "false"; # Use RWX as final permissions for injected content. Alternative is RX.
 
     transform-x86 { 
         # Make sure that prepended data is valid code for the injected content's architecture (x86, x64). The c2lint program does not have a check for this.
