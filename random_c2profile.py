@@ -1,4 +1,4 @@
-banner = '''
+banner = r"""
 ===================================================================
  ___              _              ___ ___   ___          __ _ _     
 | _ \__ _ _ _  __| |___ _ __    / __|_  ) | _ \_ _ ___ / _(_) |___ 
@@ -7,11 +7,11 @@ banner = '''
 Cobalt Strike random C2 Profile generator
 Joe Vest (@joevest) - 2021
 ===================================================================
-'''
+"""
 
 import argparse
 import os.path
-from re import template
+import re
 from jinja2 import Template
 from core.variables import *
 
