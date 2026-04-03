@@ -32,22 +32,21 @@ set useragent "{{ useragent }}";
 ################################################
 ## SSL CERTIFICATE
 ################################################
-https-certificate { # Simple self signed certificate data
-
-    set C        "{{ https_certificate_C }}";
-    set CN       "{{ https_certificate_CN }}";
-    set O        "{{ https_certificate_O }}";
-    set OU       "{{ https_certificate_OU }}";
-    set validity "{{ https_certificate_V }}";
-}
+# https-certificate { # Simple self signed certificate data
+#    set C        "{{ https_certificate_C }}";
+#    set CN       "{{ https_certificate_CN }}";
+#    set O        "{{ https_certificate_O }}";
+#    set OU       "{{ https_certificate_OU }}";
+#    set validity "{{ https_certificate_V }}";
+# }
 
 ###############################################
 ## Alternative SSL CERTIFICATE (Keystores)              
 ###############################################
-# https-certificate { 
-#    set keystore "nickvourd.store";
-#    set password "password";
-# }
+https-certificate { 
+    set keystore "<nickvourd.store>";
+    set password "<keystore_password>";
+}
 
 ################################################
 ## Task and Proxy Max Size
