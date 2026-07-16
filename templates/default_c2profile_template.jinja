@@ -157,7 +157,7 @@ post-ex { # Reference: https://www.cobaltstrike.com/help-malleable-postex
 stage { # https://www.cobaltstrike.com/help-malleable-postex
     # allocator and RWX settings (Note: HealAlloc uses RXW)
     {{ allocator_settings }}
-    set rdll_loader       "PrependLoader"; # PrependLoader only as StompLoader is no longer supported. 
+    #set rdll_loader       "PrependLoader"; # PrependLoader only as StompLoader is no longer supported. 
     set magic_mz_x86      "{{ stage_magic_mz_x86 }}";
     set magic_mz_x64      "{{ stage_magic_mz_x64 }}";
     set magic_pe          "{{ stage_magic_pe }}";
@@ -169,13 +169,13 @@ stage { # https://www.cobaltstrike.com/help-malleable-postex
     set syscall_method    "{{ stage_syscall_method }}";
     # beacon_gate determines which WinAPIs Beacon will proxy via the Sleepmask.
     {{ stage_beacon_gate }}
-    set smartinject       "false";
+    #set smartinject       "false";
     set checksum          "{{ stage_checksum }}";
     set compile_time      "{{ stage_compile_time }}";
     set entry_point       "{{ stage_entry_point }}";
     set image_size_x86    "{{ stage_image_size_x86 }}";
     set image_size_x64    "{{ stage_image_size_x64 }}";
-    set name              "{{ stage_name }}";
+    #set name              "{{ stage_name }}";
     set rich_header       "{{ stage_rich_header }}";
     # EAF Bypass is only enabled for PrependLoader and is most relevant when
     # certain security products enforce Export Address Table (EAT) checks.
