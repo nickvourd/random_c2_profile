@@ -32,7 +32,15 @@ This has been designed and tested with python3
 - 2nd, setup pipenv environment
 
 ```
-pipenv install --python 3.12
+apt update
+apt install -y build-essential curl git \
+  libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
+  libsqlite3-dev libncursesw5-dev xz-utils tk-dev \
+  libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+curl https://pyenv.run | bash
+export PATH="/root/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+pyenv install --python 3.12
 pipenv --python 3.12
 pipenv install
 pipenv shell
